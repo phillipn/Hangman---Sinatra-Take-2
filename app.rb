@@ -1,6 +1,6 @@
 require 'sinatra/base'
-require 'sinatra/flash'
 require './lib/hangperson_game.rb'
+require 'sinatra/flash'
 
 class HangpersonApp < Sinatra::Base
 
@@ -41,7 +41,14 @@ class HangpersonApp < Sinatra::Base
     
     letter = params[:guess].to_s[0]
     ### YOUR CODE HERE ###
-    @game.guess(letter)
+    if letter !~ /\S/
+      flash[:message] = "Invalid guess." 
+    elsif @game.wrong_guesses.include?(letter) || @game.guesses.include?(letter)
+      flash[:message] = "You have already used that letter."
+    else
+      @game.guess(letter)
+    end
+    
     redirect '/show' if @game.check_win_or_lose == :play
     redirect '/win' if @game.check_win_or_lose == :win
     redirect '/lose' if @game.check_win_or_lose == :lose
